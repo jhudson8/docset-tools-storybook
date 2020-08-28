@@ -1,3 +1,10 @@
+.DS_Store
+test/test.docset
+test/public
+test/storybook-static
+yarn.lock
+package-lock.json
+
 # Logs
 logs
 *.log

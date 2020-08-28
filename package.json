@@ -1,0 +1,37 @@
+{
+  "name": "docset-tools-storybook",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhudson8/docset-tools-storybook.git"
+  },
+  "keywords": [
+    "docset-tools"
+  ],
+  "author": "Joe Hudson <joehud@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jhudson8/docset-tools-storybook/issues"
+  },
+  "homepage": "https://github.com/jhudson8/docset-tools-storybook#readme",
+  "peerDependencies": {
+    "storybook": ">=6.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.1",
+    "@types/node": "^14.0.27",
+    "docset-tools-creator": "^0.0.13",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "docset-tools-types": "^0.0.19",
+    "fs-extra": "^9.0.1"
+  }
+}
