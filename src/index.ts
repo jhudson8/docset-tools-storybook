@@ -1,20 +1,6 @@
-import {
-  Plugin,
-  normalizePath,
-  getKnownType,
-  DocsetEntries,
-  DocsetEntryType,
-} from "docset-tools-types";
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-  lstatSync,
-  ensureDirSync,
-} from "fs-extra";
-import { join, basename } from "path";
-import { copyFileSync } from "fs";
+import { Plugin, DocsetEntries } from "docset-tools-types";
+import { existsSync } from "fs-extra";
+import { join } from "path";
 var exec = require("child-process-promise").exec;
 
 const DEFAULT_STORYBOOK_DIR = "storybook-static";
@@ -69,7 +55,7 @@ const plugin: Plugin = {
             }
             .react-draggable {
               display: none !important;
-            }
+          }
           </style>
           `,
       },
