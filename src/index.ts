@@ -1,24 +1,32 @@
 import { Plugin, DocsetEntries } from "docset-tools-types";
 import { existsSync } from "fs-extra";
 import { join } from "path";
-var exec = require("child-process-promise").exec;
 
 const DEFAULT_STORYBOOK_DIR = "storybook-static";
 
 const plugin: Plugin = {
   execute: async function ({ createTmpFolder, include, pluginOptions }) {
     const storybookDir = pluginOptions.storybookDir || DEFAULT_STORYBOOK_DIR;
-    await exec(
-      `node ${
-        (join(process.cwd()),
-        "node_modules/@storybook/react/dist/server/build.js")
-      } -s public`
-    );
-    await exec(
-      `node ${
-        (join(process.cwd()), "node_modules/@storybook/cli/bin/index.js")
-      } extract`
-    );
+    try {
+      await spawn("node", [
+        join(
+          process.cwd(),
+          "node_modules/@storybook/react/dist/server/build.js"
+        ),
+        "-s",
+        "public",
+      ]);
+      await spawn("node", [
+        join(process.cwd(), "node_modules/@storybook/cli/bin/index.js"),
+        "extract",
+      ]);
+    } catch (e) {
+      throw new Error(
+        "Unable to get storybook output our metadata.  Try running these commands directly and see if there are any errors and make sure you are using storybook >= 6\n\t" +
+          "node_modules/@storybook/react/dist/server/build.js -s public\n\t" +
+          "node node_modules/@storybook/cli/bin/index.js extract"
+      );
+    }
 
     const storybookDirPath = join(process.cwd(), storybookDir);
     const storybookMetaPath = join(storybookDirPath, "stories.json");
@@ -67,3 +75,18 @@ const plugin: Plugin = {
   },
 };
 export default plugin;
+
+function spawn(exec: string, args: string[]) {
+  const _spawn = require("child-process-promise").spawn;
+
+  var promise = _spawn(exec, args);
+  var childProcess = promise.childProcess;
+
+  childProcess.stdout.on("data", function (data: any) {
+    // console.log("[storybook]: ", data.toString());
+  });
+  childProcess.stderr.on("data", function (data: any) {
+    // console.log("[storybook] error: ", data.toString());
+  });
+  return promise;
+}
