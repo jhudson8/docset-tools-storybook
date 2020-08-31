@@ -1,11 +1,14 @@
-import { Plugin, DocsetEntries } from "docset-tools-types";
+import { Plugin, DocsetEntries, getKnownType } from "docset-tools-types";
 import { existsSync } from "fs-extra";
 import { join } from "path";
 
 const DEFAULT_STORYBOOK_DIR = "storybook-static";
 
 const plugin: Plugin = {
-  execute: async function ({ createTmpFolder, include, pluginOptions }) {
+  execute: async function ({ include, pluginOptions }) {
+    const docsetType = pluginOptions.docsetType
+      ? getKnownType(pluginOptions.docsetType)
+      : "Component";
     const storybookDir = pluginOptions.storybookDir || DEFAULT_STORYBOOK_DIR;
     try {
       await spawn("node", [
@@ -35,7 +38,7 @@ const plugin: Plugin = {
       throw new Error("Could not create storybook artifacts");
     }
     const rtn: DocsetEntries = {
-      Component: {},
+      [docsetType]: {},
     };
 
     const storybookMeta = require(storybookMetaPath) as any;
@@ -47,7 +50,7 @@ const plugin: Plugin = {
         const path = `${storyMeta.kind.replace(/^examples?\//i, "")}/${
           storyMeta.name
         }`;
-        rtn.Component[path] = url;
+        (rtn as any)[docsetType][path] = url;
       }
     }
 
