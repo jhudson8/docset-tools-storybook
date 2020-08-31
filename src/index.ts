@@ -58,6 +58,7 @@ const plugin: Plugin = {
 
     await include({
       path: storybookDirPath,
+      remove: true,
       rootDirName: "storybook",
       appendToBottom: {
         ["index.html"]: `

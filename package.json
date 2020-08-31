@@ -1,6 +1,6 @@
 {
   "name": "docset-tools-storybook",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -26,12 +26,12 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
     "@types/node": "^14.0.27",
-    "docset-tools-creator": "^0.0.13",
+    "docset-tools-creator": "^0.0.14",
     "typescript": "^3.9.7"
   },
   "dependencies": {
     "child-process-promise": "^2.2.1",
-    "docset-tools-types": "^0.0.19",
+    "docset-tools-types": "^0.0.20",
     "fs-extra": "^9.0.1"
   }
 }
