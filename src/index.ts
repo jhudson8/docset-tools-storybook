@@ -25,8 +25,10 @@ const plugin: Plugin = {
       ]);
     } catch (e) {
       throw new Error(
-        "Unable to get storybook output our metadata.  Try running these commands directly and see if there are any errors and make sure you are using storybook >= 6\n\t" +
-          "node_modules/@storybook/react/dist/server/build.js -s public\n\t" +
+        "Unable to get storybook output our metadata.\n\t" +
+          "Make sure you have storybook >= 6 AND @storybook/react >= 6\n\t\t" +
+          "Try running commands below directly and see if there are any errors and make sure you are using storybook >= 6\n\t\t" +
+          "node node_modules/@storybook/react/dist/server/build.js -s public\n\t\t" +
           "node node_modules/@storybook/cli/bin/index.js extract"
       );
     }
