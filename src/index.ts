@@ -29,7 +29,9 @@ const plugin: Plugin = {
           "Make sure you have storybook >= 6 AND @storybook/react >= 6\n\t\t" +
           "Try running commands below directly and see if there are any errors and make sure you are using storybook >= 6\n\t\t" +
           "node node_modules/@storybook/react/dist/server/build.js -s public\n\t\t" +
-          "node node_modules/@storybook/cli/bin/index.js extract"
+          "node node_modules/@storybook/cli/bin/index.js extract\n\t" +
+          "if extract doesn't work and you are behind a firewall, the PUPPETEER_ env variables will not work unless you modify `resolveExecutablePath` in puppeteer-core/lib/Launcher.js\n\t" +
+          "change if block to `if (!launcher._isPuppeteerCore || true)` and set PUPPETEER_EXECUTABLE_PATH environment variable to Chrome executable location"
       );
     }
 
