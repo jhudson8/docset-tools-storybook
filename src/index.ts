@@ -18,6 +18,7 @@ const plugin: Plugin = {
         ),
         "-s",
         "public",
+        "--docs",
       ]);
       await spawn("node", [
         join(process.cwd(), "node_modules/@storybook/cli/bin/index.js"),
@@ -58,22 +59,27 @@ const plugin: Plugin = {
       }
     }
 
+    const storybookSettings = `
+    <script>
+      sessionStorage.setItem('@storybook/ui/store', JSON.stringify({
+        layout: {
+          initialActive: 'canvas',
+          isToolShown: true,
+          isFullscreen: false,
+          showPanel: true,
+          showNav: false
+        }
+      }))
+    </script>
+    `;
+
     await include({
       path: storybookDirPath,
       remove: true,
       rootDirName: "storybook",
       appendToBottom: {
-        ["index.html"]: `
-          <style>
-            .css-sqdry3, .css-sqdry3 + div {
-              left: 0 !important;
-              width: 100% !important;
-            }
-            .react-draggable {
-              display: none !important;
-          }
-          </style>
-          `,
+        ["index.html"]: storybookSettings,
+        ["iframe.html"]: storybookSettings,
       },
     });
 
