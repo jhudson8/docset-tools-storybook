@@ -11,11 +11,11 @@ const plugin: Plugin = {
       ? getKnownType(pluginOptions.docsetType)
       : "Component";
     const storybookDir = pluginOptions.storybookDir || DEFAULT_STORYBOOK_DIR;
-    const storybookTmpPath = join(process.cwd(), '._tmp_storybook_public');
+    const storybookTmpPath = join(process.cwd(), 'storybook-static');
     let storybookMetaRetrieved = false;
 
     try {
-      // make the ._tmp_storybook_public dir
+      // make the storybook-static dir
       if (!existsSync(storybookTmpPath)){
         mkdirSync(storybookTmpPath);
       }
@@ -26,8 +26,7 @@ const plugin: Plugin = {
           "node_modules/@storybook/react/dist/server/build.js"
         ),
         "-s",
-        "._tmp_storybook_public",
-        "--docs",
+        "storybook-static"
       ]);
       try {
         await spawn("node", [
@@ -43,7 +42,7 @@ const plugin: Plugin = {
         "Unable to get storybook output our metadata.\n\t" +
           "Make sure you have storybook >= 6 AND @storybook/react >= 6\n\t\t" +
           "Try running commands below directly and see if there are any errors and make sure you are using storybook >= 6\n\t\t" +
-          "node node_modules/@storybook/react/dist/server/build.js -s ._tmp_storybook_public\n\t\t" +
+          "node node_modules/@storybook/react/dist/server/build.js -s storybook-static\n\t\t" +
           "node node_modules/@storybook/cli/bin/index.js extract\n\t" +
           "if extract doesn't work and you are behind a firewall, the PUPPETEER_ env variables will not work unless you modify `resolveExecutablePath` in puppeteer-core/lib/Launcher.js\n\t" +
           "change if block to `if (!launcher._isPuppeteerCore || true)` and set PUPPETEER_EXECUTABLE_PATH environment variable to Chrome executable location"
@@ -80,7 +79,7 @@ const plugin: Plugin = {
       (rtn as any)[docsetType].Storybooks = 'storybook/index.html';
     }
 
-    const storybookSettings = storybookMetaPath ? `
+    const storybookSettings = storybookMetaRetrieved ? `
     <script>
       sessionStorage.setItem('@storybook/ui/store', JSON.stringify({
         layout: {
