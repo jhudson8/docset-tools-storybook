@@ -1,14 +1,19 @@
 import { Plugin, DocsetEntries, getKnownType } from "docset-tools-types";
-import { existsSync, mkdirSync } from "fs-extra";
+import { existsSync, mkdirSync, statSync, readdirSync, readFile, readFileSync, writeFileSync } from "fs-extra";
 import { join } from "path";
 import rimraf from 'rimraf';
+import parseStoryModule, { StoryDetails } from "./storyParser";
 
-const DEFAULT_STORYBOOK_DIR = "storybook-static";
+const DEFAULT_STORYBOOK_BUILD_DIR = "storybook-static";
+const DEFAULT_STORYBOOK_SOURCE_DIR = "stories";
 
 const plugin: Plugin = {
   execute: async function ({ include, pluginOptions }) {
-    const storybookDir = pluginOptions.storybookDir || DEFAULT_STORYBOOK_DIR;
+    const storybookDir = pluginOptions.storybookBuildDir || DEFAULT_STORYBOOK_BUILD_DIR;
+    const storybookSrcDir = pluginOptions.storybookSrcDir || DEFAULT_STORYBOOK_SOURCE_DIR;
     const storybookTmpPath = join(process.cwd(), 'storybook-static');
+    const storybookDirPath = join(process.cwd(), storybookDir);
+    const storybookMetaPath = join(storybookDirPath, "stories.json");
     let storybookMetaRetrieved = false;
 
     try {
@@ -37,9 +42,28 @@ const plugin: Plugin = {
           ]);
           storybookMetaRetrieved = true;
         } catch (e) {
-          // we couldn't get story details
-          if (!pluginOptions.force) {
+          // parse the file by hand
+          const srcFolder = join(process.cwd(), storybookSrcDir);
+          const stories = getStories(srcFolder);
+          if (stories.length === 0 && !pluginOptions.force) {
             throw e;
+          } else {
+            // create the json file
+            const storyMeta = {
+              stories: []
+            } as any;
+            for (const story of stories) {
+              const { name, adds } = story;
+              for (const add of adds) {
+                storyMeta.stories.push({
+                  kind: name,
+                  id: `${name.toLowerCase().replace(/ /g, '-')}--${add.toLowerCase().replace(/ /g, '-')}`,
+                  name: add
+                });
+              }
+            }
+            writeFileSync(storybookMetaPath, JSON.stringify(storyMeta), { encoding: 'utf8' });
+            storybookMetaRetrieved = true;
           }
         }
       } catch (e) {
@@ -56,8 +80,6 @@ const plugin: Plugin = {
         );
       }
 
-      const storybookDirPath = join(process.cwd(), storybookDir);
-      const storybookMetaPath = join(storybookDirPath, "stories.json");
       const exists = !storybookMetaRetrieved || existsSync(storybookMetaPath);
       if (!exists) {
         throw new Error("Could not create storybook artifacts");
@@ -72,7 +94,7 @@ const plugin: Plugin = {
         for (let i = 0; i < stories.length; i++) {
           const storyMeta = stories[i] as any;
           if (!storyMeta.kind.match(/Example\/Introduction/i)) {
-            const url = `storybook/index.html?path=/story/${storyMeta.id}`;
+            const url = `storybook/index.html?nav=0&path=/story/${storyMeta.id}`;
             const path = `${storyMeta.kind.replace(/^examples?\//i, "")}/${
               storyMeta.name
             }`;
@@ -83,19 +105,7 @@ const plugin: Plugin = {
         (rtn as any)[docsetType].Storybooks = 'storybook/index.html';
       }
 
-      const storybookSettings = storybookMetaRetrieved ? `
-      <script>
-        sessionStorage.setItem('@storybook/ui/store', JSON.stringify({
-          layout: {
-            initialActive: 'canvas',
-            isToolShown: true,
-            isFullscreen: false,
-            showPanel: true,
-            showNav: false
-          }
-        }))
-      </script>
-      ` : ``;
+      const storybookSettings = storybookMetaRetrieved ? `` : ``;
 
       await include({
         path: storybookDirPath,
@@ -130,4 +140,25 @@ function spawn(exec: string, args: string[]) {
     // console.log("[storybook] error: ", data.toString());
   });
   return promise;
+}
+
+function getStories (path: string, storyDetails?: StoryDetails[]): StoryDetails[] {
+  storyDetails = storyDetails || [];
+  if (existsSync(path)) {
+    const stat = statSync(path);
+    if (stat.isDirectory()) {
+      const children = readdirSync(path);
+      for (const name of children) {
+        getStories(join(path, name), storyDetails);
+      }
+    } else {
+      if (path.endsWith('.stories.tsx') || path.endsWith('.stories.jsx')) {
+        // it's a story file
+        const contents = readFileSync(path, { encoding: 'utf8' });
+        const stories = parseStoryModule(contents);
+        storyDetails.push(...stories);
+      }
+    }
+  }
+  return storyDetails;
 }
