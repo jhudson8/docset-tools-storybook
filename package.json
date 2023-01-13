@@ -1,6 +1,6 @@
 {
   "name": "docset-tools-storybook",
-  "version": "0.1.7",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -32,9 +32,9 @@
   },
   "dependencies": {
     "child-process-promise": "^2.2.1",
-    "docset-tools-types": "^0.0.20",
+    "docset-tools-types": "^1.0.0",
     "fs-extra": "^9.0.1",
     "rimraf": "^3.0.2",
-    "storybook": "^6.1.17"
+    "storybook": "^6.5.15"
   }
 }
